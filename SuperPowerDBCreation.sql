@@ -14,7 +14,6 @@ CREATE TABLE Country
 (
 id int identity primary key,
 cname nvarchar(40) not null,
-income int not null,
 remaining int not null,
 userID int references Users(id) not null
 )
@@ -83,7 +82,6 @@ CREATE TABLE ProvinceProducts
 (
 provinceID int references Province(id) not null,
 productID int references Products(id) not null,
-amount int not null,
 primary key(provinceID, productID)
 )
 
@@ -93,6 +91,14 @@ provinceID int references Province(id) not null,
 investmentID int references Investments(id) not null,
 degree int not null,
 primary key(provinceID, investmentID)
+)
+
+CREATE TABLE ProductInventory
+(
+countryID int references Country(id) not null,
+productID int references Products(id) not null,
+amount int not null,
+primary key(countryID, productID)
 )
 
 CREATE TABLE ProvinceBudget
