@@ -1,5 +1,14 @@
 /* ACCESSING DATA BY STORED PROCEDURES */
 
+/*
+GO - Deallocates variables
+
+*/
+
+use superpower
+
+GO 
+
 Create proc delProcedures
 as
 begin
@@ -27,7 +36,7 @@ Create proc userCheck (@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
-select id from dbo.Users where email=@email and pass=@password;
+select id as ID from dbo.Users where email=@email and pass=@password;
 end
 
 GO
@@ -45,16 +54,16 @@ if not exists (select * from dbo.users where email=@email)
 		Declare @cId int;
 		insert into dbo.Users OUTPUT inserted.id values(@uname, @password, @email)
 		SET @uId = @@IDENTITY
-		insert into dbo.Country values(@cname, 0, 0, @uId)
+		insert into dbo.Country values(@cname, 0, @uId)
 		SET @cId = @@IDENTITY
 		update TOP (1) dbo.Province set countryID=@cId where countryID=1
-		return(1)
+		select 1 as Result
 		end
 	else
-		return(0)
+		select 0 as Result
 	end
 else
-	return(-1)
+	select -1 as Result
 end
 
 GO
