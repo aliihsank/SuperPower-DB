@@ -2,7 +2,6 @@
 
 /*
 GO - Deallocates variables
-
 */
 
 use superpower
@@ -31,8 +30,8 @@ exec delProcedures
 
 GO
 
-/*USER CHECK*/
-Create proc userCheck (@email nvarchar(40), @password nvarchar(40)) 
+/*USER LOGIN*/
+Create proc userLogin (@email nvarchar(40), @password nvarchar(40)) 
 as
 begin
 SET NOCOUNT ON;
@@ -54,7 +53,7 @@ if not exists (select * from dbo.users where email=@email)
 		Declare @cId int;
 		insert into dbo.Users OUTPUT inserted.id values(@uname, @password, @email)
 		SET @uId = @@IDENTITY
-		insert into dbo.Country values(@cname, 0, @uId)
+		insert into dbo.Country values(@cname, 10000, @uId)
 		SET @cId = @@IDENTITY
 		update TOP (1) dbo.Province set countryID=@cId where countryID=1
 		select 1 as Result
@@ -68,75 +67,73 @@ end
 
 GO
 
-/*COUNTRIES DETAILS*/
-Create proc countriesDetails(@email nvarchar(40), @password nvarchar(40))
+/*MY COUNTRY DETAILS*/
+Create proc myCountriesDetails(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	select C.id id, C.cname cname, sum(P.population) population, avg(P.taxRate) avgTax, count(*) numOfProvinces, C.income income, C.remaining remaining 
-	from dbo.Country C 
-	inner join dbo.Province P 
-	on C.id=P.countryID 
-	group by C.id, C.cname, C.income, C.remaining
+	select C.id id, C.cname cname, sum(P.population) totalpopulation, avg(P.taxRate) avgTax, count(P.id) numOfProvinces, C.remaining remaining
+	from Country C 
+	inner join Province P on C.id = P.countryID
+	where C.userID in (select id from Users where email=@email and pass=@password)
+	group by C.id, C.cname, C.remaining
 	end
 end
 
 GO
 
-/*PROVINCES DETAILS*/
-Create proc provincesDetails(@email nvarchar(40), @password nvarchar(40), @countryId int, @year nvarchar(5))
+/*OTHER COUNTRIES DETAILS*/
+Create proc otherCountriesDetails(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	SELECT  P.pname, P.population, P.taxRate,
-		stuff(
-                (
-                    select  ',' + cast(A.corpType as varchar(40)) + ':' + cast(A.numOfSoldiers as varchar(40))
-                    from    dbo.ArmyCorps A
-                    where   P.id=A.provinceID and P.countryID=@countryId
-                    order by A.id
-                    for xml path('')
-                ),1,1,'') Corps,
-        stuff(
-                (
-                    select  ',' + cast(R.resourceID as varchar(40)) + ':' + cast(R.amount as varchar(40))
-                    from    dbo.ProvinceResources R
-                    where   P.id=R.provinceId and P.countryID=@countryId
-                    order by R.resourceID
-                    for xml path('')
-                ),1,1,'') Resources,
-		stuff(
-                (
-                    select  ',' + cast(K.productID as varchar(40)) + ':' + cast(K.amount as varchar(40))
-                    from    dbo.ProvinceProducts K
-                    where   P.id=K.provinceID and P.countryID=@countryId
-                    order by K.productID
-                    for xml path('')
-                ),1,1,'') Products,
-		stuff(
-                (
-                    select  ',' + cast(I.investmentID as varchar(40)) + ':' + cast(I.degree as varchar(40))
-                    from    dbo.ProvinceInvestments I
-                    where   P.id=I.provinceID and P.countryID=@countryId
-                    order by I.investmentID
-                    for xml path('')
-                ),1,1,'') Investments,
-		stuff(
-                (
-                    select  ',' + cast(B.amount as varchar(40)) + ':' + cast(B.remaining as varchar(40))
-                    from    dbo.ProvinceBudget B
-                    where   P.id=B.provinceID and P.countryID=@countryId and year=@year
-                    order by B.id
-                    for xml path('')
-                ),1,1,'') Budget
-	FROM dbo.Province P
-	GROUP BY P.id, P.pname, P.population, P.taxRate, P.countryID
+	select C.id id, C.cname cname, sum(P.population) totalpopulation, avg(P.taxRate) avgTax, count(P.id) numOfProvinces, C.remaining remaining
+	from Country C 
+	inner join Province P on C.id = P.countryID
+	where C.userID not in (select id from Users where email=@email and pass=@password)
+	group by C.id, C.cname, C.remaining
 	end
 end
+
+
+GO
+
+/*MY PROVINCES DETAILS*/
+Create proc myProvincesDetails(@email nvarchar(40), @password nvarchar(40))
+as
+begin
+SET NOCOUNT ON;
+if exists (select * from users where email=@email and pass=@password)
+	begin
+	SELECT  P.id, P.pname, P.governorName, P.population, P.taxRate
+	FROM dbo.Country C
+	inner join Province P on C.id = P.countryID
+	where C.userID in (select id from Users where email=@email and pass=@password)
+	GROUP BY P.id, P.pname, P.governorName, P.population, P.taxRate
+	end
+end
+
+GO
+
+/*OTHER PROVINCES DETAILS*/
+Create proc otherProvincesDetails(@email nvarchar(40), @password nvarchar(40))
+as
+begin
+SET NOCOUNT ON;
+if exists (select * from users where email=@email and pass=@password)
+	begin
+	SELECT  P.id, P.pname, P.governorName, P.population, P.taxRate
+	FROM dbo.Country C
+	inner join Province P on C.id = P.countryID
+	where C.userID not in (select id from Users where email=@email and pass=@password)
+	GROUP BY P.id, P.pname, P.governorName, P.population, P.taxRate
+	end
+end
+
 
 GO
 
