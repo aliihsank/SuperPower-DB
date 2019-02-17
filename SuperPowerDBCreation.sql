@@ -54,7 +54,8 @@ primary key(c1id, c2id, aggrementId)
 CREATE TABLE NaturalResources
 (
 id int identity primary key,
-nname nvarchar(40) not null
+nname nvarchar(40) not null,
+type nvarchar(40) not null
 )
 
 CREATE TABLE Products
