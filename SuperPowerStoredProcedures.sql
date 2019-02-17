@@ -30,6 +30,26 @@ exec delProcedures
 
 GO
 
+Create proc payTaxes (@taxConstant int)
+as
+begin
+
+/* Give taxes to Countries */
+update C set C.remaining= C.remaining + (N.totalTax/@taxConstant)
+from dbo.Country as C
+inner join (
+/* sum all province's taxes in one country */
+select M.id, M.cname, sum(provinceTax) as totalTax from
+/*find every province's tax amount */
+(select C.id, C.cname, P.population*P.taxRate as provinceTax
+from Province P
+inner join Country C on P.countryID=C.id) as M
+group by M.cname) as N on C.id = N.id
+
+end
+
+GO
+
 /*USER LOGIN*/
 Create proc userLogin (@email nvarchar(40), @password nvarchar(40)) 
 as
