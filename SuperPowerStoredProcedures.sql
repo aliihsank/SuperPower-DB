@@ -48,6 +48,7 @@ from Province P
 inner join Country C on P.countryID=C.id) as M
 group by M.cname) as N on C.id = N.id
 
+select 1 as Result
 end
 
 GO
@@ -60,6 +61,10 @@ from dbo.ProvinceResources R
 inner join NaturalResources N on R.resourceID = N.id
 inner join Province P on R.provinceID=P.id
 end
+
+GO
+
+select * from dbo.Province
 
 GO
 
