@@ -296,6 +296,7 @@ insert into dbo.Investments values('barracks', 1500)
 insert into dbo.Investments values('water stock', 750)
 insert into dbo.Investments values('food stock', 750)
 
+GO
 
 /*RESOURCES*/
 /*Water*/
@@ -306,6 +307,8 @@ BEGIN
 	SET @cnt = @cnt + 1;
 END;
 
+GO
+
 /*Wheat*/
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
@@ -313,6 +316,9 @@ BEGIN
 	insert into dbo.ProvinceResources values(@cnt,2,9999)
 	SET @cnt = @cnt + 1;
 END;
+
+GO
+
 
 /*Iron*/
 DECLARE @cnt INT = 1;
@@ -322,6 +328,9 @@ BEGIN
 	SET @cnt = @cnt + 1;
 END;
 
+GO
+
+
 /*Silicon*/
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
@@ -329,6 +338,9 @@ BEGIN
 	insert into dbo.ProvinceResources values(@cnt,4,99)
 	SET @cnt = @cnt + 1;
 END;
+
+GO
+
 
 /*PRODUCTS*/
 /*Weapon*/
@@ -338,6 +350,9 @@ BEGIN
 	insert into dbo.ProvinceProducts values(@cnt,1,5)
 	SET @cnt = @cnt + 1;
 END;
+
+GO
+
 
 /*Medic tool*/
 DECLARE @cnt INT = 1;
