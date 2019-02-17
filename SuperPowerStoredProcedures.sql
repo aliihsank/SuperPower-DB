@@ -26,6 +26,8 @@ close cur
 deallocate cur
 end
 
+GO
+
 exec delProcedures
 
 GO
@@ -46,6 +48,17 @@ from Province P
 inner join Country C on P.countryID=C.id) as M
 group by M.cname) as N on C.id = N.id
 
+end
+
+GO
+
+Create proc returnResourceValues
+as
+begin
+select P.countryID as CountryID, P.population as Population, P.id as ProvinceID, R.resourceID as ResourceID, R.amount as Amount, N.type as Type
+from dbo.ProvinceResources R
+inner join NaturalResources N on R.resourceID = N.id
+inner join Province P on R.provinceID=P.id
 end
 
 GO
