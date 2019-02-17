@@ -64,10 +64,6 @@ end
 
 GO
 
-select * from dbo.Province
-
-GO
-
 /*USER LOGIN*/
 Create proc userLogin (@email nvarchar(40), @password nvarchar(40)) 
 as
