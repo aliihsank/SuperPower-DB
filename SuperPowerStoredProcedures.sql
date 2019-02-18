@@ -32,6 +32,7 @@ exec delProcedures
 
 GO
 
+/* SEALED */
 Create proc payTaxes (@taxConstant int)
 as
 begin
@@ -53,6 +54,7 @@ end
 
 GO
 
+/* SEALED */
 Create proc returnResourceValues
 as
 begin
@@ -64,6 +66,7 @@ end
 
 GO
 
+/* SEALED */
 /*USER LOGIN*/
 Create proc userLogin (@email nvarchar(40), @password nvarchar(40)) 
 as
@@ -74,6 +77,7 @@ end
 
 GO
 
+/* SEALED */
 /*USER REGISTER*/
 Create proc userRegister (@uname nvarchar(40), @cname nvarchar(40), @email nvarchar(40), @password nvarchar(40))
 as
@@ -101,8 +105,10 @@ end
 
 GO
 
+
+/* SEALED */
 /*MY COUNTRY DETAILS*/
-Create proc myCountriesDetails(@email nvarchar(40), @password nvarchar(40))
+Create proc myCountryDetails(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
@@ -117,7 +123,8 @@ if exists (select * from users where email=@email and pass=@password)
 end
 
 GO
-
+								     
+/* SEALED */
 /*OTHER COUNTRIES DETAILS*/
 Create proc otherCountriesDetails(@email nvarchar(40), @password nvarchar(40))
 as
@@ -135,7 +142,8 @@ end
 
 
 GO
-
+									  
+/* SEALED */
 /*MY PROVINCES DETAILS*/
 Create proc myProvincesDetails(@email nvarchar(40), @password nvarchar(40))
 as
@@ -152,7 +160,8 @@ if exists (select * from users where email=@email and pass=@password)
 end
 
 GO
-
+								       
+/* SEALED */
 /*OTHER PROVINCES DETAILS*/
 Create proc otherProvincesDetails(@email nvarchar(40), @password nvarchar(40))
 as
