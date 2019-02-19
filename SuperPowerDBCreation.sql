@@ -1,5 +1,7 @@
 use superpower
 
+GO
+
 /*Table Creation*/
 
 CREATE TABLE Users
@@ -188,9 +190,9 @@ primary key(c1Id,c2Id,aggrementId)
 
 /*Default data*/
 
-insert into dbo.Users values('userx','passx','xxx@hotmail.com')
+insert into dbo.Users values('userx','passx','x@hotmail.com')
 
-insert into dbo.Country values('Free Lands', 0, 0, 1)
+insert into dbo.Country values('Free Lands', 0, 1)
 
 insert into dbo.Province values('adana','NULL',2200000, 10, 1)
 insert into dbo.Province values('adıyaman','NULL',615000, 10, 1)
@@ -346,7 +348,7 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceProducts values(@cnt,1,5)
+	insert into dbo.ProvinceProducts values(@cnt,1)
 	SET @cnt = @cnt + 1;
 END;
 
@@ -357,6 +359,6 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceProducts values(@cnt,2,5)
+	insert into dbo.ProvinceProducts values(@cnt,2)
 	SET @cnt = @cnt + 1;
 END;
