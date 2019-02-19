@@ -1,9 +1,5 @@
 /* ACCESSING DATA BY STORED PROCEDURES */
 
-/*
-GO - Deallocates variables
-*/
-
 use superpower
 
 GO 
@@ -47,7 +43,7 @@ select M.id, M.cname, sum(provinceTax) as totalTax from
 (select C.id, C.cname, P.population*P.taxRate as provinceTax
 from Province P
 inner join Country C on P.countryID=C.id) as M
-group by M.cname) as N on C.id = N.id
+group by M.id, M.cname) as N on C.id = N.id
 
 select 1 as Result
 end
@@ -518,4 +514,5 @@ else
 	end
 end
 
-/*****************************************/
+
+
