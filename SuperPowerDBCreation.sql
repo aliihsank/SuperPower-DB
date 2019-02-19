@@ -106,7 +106,6 @@ CREATE TABLE ProvinceBudget
 (
 id int identity primary key,
 amount int not null,
-remaining int not null,
 year nvarchar(5),
 provinceID int references Province(id) not null
 )
