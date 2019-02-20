@@ -40,13 +40,14 @@ inner join (
 /* sum all province's taxes in one country */
 select M.id, M.cname, sum(provinceTax) as totalTax from
 /*find every province's tax amount */
-(select C.id, C.cname, P.population*P.taxRate as provinceTax
+(select C.id, C.cname, (P.population / 1000) * P.taxRate as provinceTax
 from Province P
 inner join Country C on P.countryID=C.id) as M
 group by M.id, M.cname) as N on C.id = N.id
 
 select 1 as Result
 end
+
 
 GO
 
