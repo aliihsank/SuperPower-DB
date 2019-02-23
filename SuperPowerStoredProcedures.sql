@@ -148,7 +148,7 @@ begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	SELECT  P.id, P.pname, P.governorName, P.population, P.taxRate
+	SELECT  P.id, P.pname, P.governorName, P.population, P.taxRate, P.countryID
 	FROM dbo.Country C
 	inner join Province P on C.id = P.countryID
 	where C.userID in (select id from Users where email=@email and pass=@password)
@@ -166,7 +166,7 @@ begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	SELECT  P.id, P.pname, P.governorName, P.population
+	SELECT  P.id, P.pname, P.governorName, P.population, P.countryID
 	FROM dbo.Country C
 	inner join Province P on C.id = P.countryID
 	where C.userID not in (select id from Users where email=@email and pass=@password)
