@@ -152,7 +152,7 @@ if exists (select * from users where email=@email and pass=@password)
 	FROM dbo.Country C
 	inner join Province P on C.id = P.countryID
 	where C.userID in (select id from Users where email=@email and pass=@password)
-	GROUP BY P.id, P.pname, P.governorName, P.population, P.taxRate
+	GROUP BY P.id, P.pname, P.governorName, P.population, P.taxRate, P.countryID
 	end
 end
 
@@ -170,7 +170,7 @@ if exists (select * from users where email=@email and pass=@password)
 	FROM dbo.Country C
 	inner join Province P on C.id = P.countryID
 	where C.userID not in (select id from Users where email=@email and pass=@password)
-	GROUP BY P.id, P.pname, P.governorName, P.population, P.taxRate
+	GROUP BY P.id, P.pname, P.governorName, P.population, P.taxRate, P.countryID
 	end
 end
 
@@ -514,6 +514,3 @@ else
 	return(-1)
 	end
 end
-
-
-
