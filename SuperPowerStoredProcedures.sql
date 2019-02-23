@@ -129,7 +129,7 @@ begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	select C.id id, C.cname cname, sum(P.population) totalpopulation, count(P.id) numOfProvinces
+	select C.id id, C.cname cname, sum(P.population) totalpopulation, 0 as avgTax, count(P.id) numOfProvinces, 0 as remaining
 	from Country C
 	inner join Province P on C.id = P.countryID
 	where C.userID not in (select id from Users where email=@email and pass=@password)
@@ -148,7 +148,7 @@ begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	SELECT  P.id, P.pname, P.governorName, P.population, P.taxRate, P.countryID
+	SELECT  P.id as id, P.pname as pname, P.governorName as governorName, P.population as population, P.taxRate as taxRate, P.countryID as countryID
 	FROM dbo.Country C
 	inner join Province P on C.id = P.countryID
 	where C.userID in (select id from Users where email=@email and pass=@password)
@@ -166,7 +166,7 @@ begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	SELECT  P.id, P.pname, P.governorName, P.population, P.countryID
+	SELECT  P.id as id, P.pname as pname, P.governorName as governorName, P.population as population, 0 as taxRate, P.countryID
 	FROM dbo.Country C
 	inner join Province P on C.id = P.countryID
 	where C.userID not in (select id from Users where email=@email and pass=@password)
