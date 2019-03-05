@@ -177,6 +177,7 @@ end
 
 GO
 
+/*SEALED*/
 /*ARMY INFORMATIONS*/
 Create proc armyInformations(@email nvarchar(40), @password nvarchar(40), @countryId int)
 as
@@ -184,21 +185,14 @@ begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	SELECT  A.id, A.budget,
-		stuff(
-                (
-                    select  ',' + cast(A.corpType as varchar(40)) + ':' + cast(A.numOfSoldiers as varchar(40)) + ':' + cast(M.mission as varchar(40))
-                    from    dbo.ArmyCorps A
-					left outer join ArmyCorpsMissions M
-					on A.id=M.corpId
-                    where A.armyID in (select K.id from Army K where K.countryID=@countryId)
-                    order by A.id
-                    for xml path('')
-                ),1,1,'') Corps
-	FROM dbo.Army A
-	GROUP BY A.id, A.budget
+	SELECT C.corpType, C.numOfSoldiers, M.mission, P.pname
+	FROM ArmyCorps C
+	full outer join ArmyCorpsMissions M on C.id = M.corpId
+	inner join Province P on C.provinceID=P.id
+	where C.armyID in (select A.id from Army A where A.countryID = @countryID)
 	end
 end
+
 
 GO
 
