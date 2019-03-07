@@ -247,7 +247,7 @@ begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	select (select Top(1) cname from Country where id=C.c1id), (select Top(1) cname from Country where id=C.c2id), A.aggrementType, C.endDate 
+	select (select Top(1) cname from Country where id=C.c1id) as cname1, (select Top(1) cname from Country where id=C.c2id) as cname2, A.aggrementType, C.endDate 
 	from CountryAggrements C
 	inner join Aggrements A on C.aggrementId=A.id
 	where c1id in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password) or c2id in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password)
