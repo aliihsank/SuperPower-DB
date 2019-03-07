@@ -179,7 +179,7 @@ GO
 
 /*SEALED*/
 /*ARMY INFORMATIONS*/
-Create proc armyInformations(@email nvarchar(40), @password nvarchar(40), @countryId int)
+Create proc armyInformations(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
@@ -189,7 +189,7 @@ if exists (select * from users where email=@email and pass=@password)
 	FROM ArmyCorps C
 	full outer join ArmyCorpsMissions M on C.id = M.corpId
 	inner join Province P on C.provinceID=P.id
-	where C.armyID in (select A.id from Army A where A.countryID = @countryID)
+	where C.armyID in (select A.id from Army A where A.countryID in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password))
 	end
 end
 
@@ -241,7 +241,7 @@ GO
 
 /*SEALED*/
 /*AGGREMENTS INFORMATIONS*/
-Create proc aggrementsInformations(@email nvarchar(40), @password nvarchar(40), @countryId int)
+Create proc aggrementsInformations(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
@@ -250,7 +250,7 @@ if exists (select * from users where email=@email and pass=@password)
 	select (select Top(1) cname from Country where id=C.c1id), (select Top(1) cname from Country where id=C.c2id), A.aggrementType 
 	from CountryAggrements C
 	inner join Aggrements A on C.aggrementId=A.id
-	where c1id=@countryId or c2id=@countryId
+	where c1id in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password) or c2id in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password)
 	end
 end
 
@@ -342,7 +342,7 @@ GO
 
 /*SEALED*/
 /*LAWS INFORMATIONS*/
-Create proc lawsInformations(@email nvarchar(40), @password nvarchar(40), @countryId int)
+Create proc lawsInformations(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
@@ -352,7 +352,7 @@ if exists (select * from users where email=@email and pass=@password)
 	from CountryLaws L
 	inner join Country C on L.cId=C.id
 	inner join Laws W on L.lId=W.id
-	where L.cId=@countryId
+	where L.cId in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password)
 	end
 end
 
@@ -430,7 +430,7 @@ GO
 
 /*SEALED*/
 /*BUDGET INFORMATIONS*/
-Create proc budgetInformations(@email nvarchar(40), @password nvarchar(40), @countryId int)
+Create proc budgetInformations(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
@@ -439,7 +439,7 @@ if exists (select * from users where email=@email and pass=@password)
 	select P.pname, B.amount, B.year from Province P
 	inner join ProvinceBudget B
 	on P.id=B.provinceId
-	where P.countryId=@countryId
+	where P.countryId in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password)
 	end
 end
 
