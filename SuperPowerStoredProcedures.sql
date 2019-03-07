@@ -189,7 +189,7 @@ if exists (select * from users where email=@email and pass=@password)
 	FROM ArmyCorps C
 	full outer join ArmyCorpsMissions M on C.id = M.corpId
 	inner join Province P on C.provinceID=P.id
-	where C.armyID in (select A.id from Army A where A.countryID in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password))
+	where C.armyID in (select A.id from Army A where A.countryID in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.email=@email and Us.pass=@password))
 	end
 end
 
@@ -250,7 +250,7 @@ if exists (select * from users where email=@email and pass=@password)
 	select (select Top(1) cname from Country where id=C.c1id) as cname1, (select Top(1) cname from Country where id=C.c2id) as cname2, A.aggrementType, C.endDate 
 	from CountryAggrements C
 	inner join Aggrements A on C.aggrementId=A.id
-	where c1id in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password) or c2id in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password)
+	where c1id in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.email=@email and Us.pass=@password) or c2id in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password)
 	end
 end
 
@@ -352,7 +352,7 @@ if exists (select * from users where email=@email and pass=@password)
 	from CountryLaws L
 	inner join Country C on L.cId=C.id
 	inner join Laws W on L.lId=W.id
-	where L.cId in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password)
+	where L.cId in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.email=@email and Us.pass=@password)
 	end
 end
 
@@ -439,7 +439,7 @@ if exists (select * from users where email=@email and pass=@password)
 	select P.pname, B.amount, B.year from Province P
 	inner join ProvinceBudget B
 	on P.id=B.provinceId
-	where P.countryId in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password)
+	where P.countryId in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.email=@email and Us.pass=@password)
 	end
 end
 
