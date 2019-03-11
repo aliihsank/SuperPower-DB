@@ -196,21 +196,19 @@ end
 
 GO
 
+/*SEALED*/
 /*GIVE MISSION TO CORPS*/
-Create proc giveMissionToCorps(@email nvarchar(40), @password nvarchar(40), @corpId int, @targetProvinceId int, @mission nvarchar(40))
+Create proc giveMissionToCorps(@email nvarchar(40), @password nvarchar(40), @corpType nvarchar(40), @targetProvinceName nvarchar(40), @mission nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
-	begin
-	insert into ArmyCorpsMissions values(@corpId, @targetProvinceId, @mission, current_timestamp, 60)
+	begin	
+	insert into ArmyCorpsMissions values((select top(1) id from ArmyCorps C where C.corpType=@corpType), (select top(1) id from Province P where P.pname=@targetProvinceName) , @mission, current_timestamp, 60)
 	return(1)
 	end
-else
-	begin
-	return(-1)
-	end
 end
+
 
 GO
 
@@ -274,21 +272,19 @@ end
 
 GO
 
+/*SEALED*/
 /*OFFER AGGREMENT*/
-Create proc offerAggrement(@email nvarchar(40), @password nvarchar(40), @c1Id int, @c2Id int, @aggrementId int, @endDate DateTime)
+Create proc offerAggrement(@email nvarchar(40), @password nvarchar(40), @c1Name nvarchar(40), @c2Name nvarchar(40), @aggrementTitle nvarchar(40), @endDate DateTime)
 as
 begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	insert into AggrementOffers values(@c1Id, @c2Id, @aggrementId, @endDate)
+	insert into AggrementOffers values((select top(1) id from Country C where C.cname=@c1Name), (select top(1) id from Country C where C.cname=@c2Name), (select id from Aggrements A where A.aggrementType=@aggrementTitle), @endDate)
 	return(1)
 	end
-else
-	begin
-	return(-1)
-	end
 end
+
 
 GO
 
