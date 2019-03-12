@@ -205,10 +205,9 @@ SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin	
 	insert into ArmyCorpsMissions values((select top(1) id from ArmyCorps C where C.corpType=@corpType), (select top(1) id from Province P where P.pname=@targetProvinceName) , @mission, current_timestamp, 60)
-	return(1)
+	select 1 as Result
 	end
 end
-
 
 GO
 
@@ -281,10 +280,9 @@ SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
 	insert into AggrementOffers values((select top(1) id from Country C where C.cname=@c1Name), (select top(1) id from Country C where C.cname=@c2Name), (select id from Aggrements A where A.aggrementType=@aggrementTitle), @endDate)
-	return(1)
+	select 1 as Result
 	end
 end
-
 
 GO
 
@@ -409,18 +407,17 @@ end
 GO
 
 /*MAKE LAW*/
-Create proc makeLaw(@email nvarchar(40), @password nvarchar(40), @countryId int, @lawId int, @endDate DateTime)
+Create proc makeLaw(@email nvarchar(40), @password nvarchar(40), @lawTitle nvarchar(40), @startDate DateTime)
 as
 begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	insert into CountryLaws values(@countryId, @lawId, current_timestamp, @endDate)
-	return(1)
+	insert into CountryLaws values((select top (1) id from Country C where C.userID in (select top(1) id from Users U where U.email=@email and U.pass=@password)), (select top(1) id from Laws where title=@lawTitle), current_timestamp, @startDate)
+	select 1 as Result
 	end
-else
-	return(-1)
 end
+
 
 GO
 
@@ -442,18 +439,14 @@ end
 GO
 
 /*SET BUDGET FOR PROVINCE*/
-Create proc setBudgetForProvince(@email nvarchar(40), @password nvarchar(40), @provinceId int, @year nvarchar(5), @amount int)
+Create proc setBudgetForProvince(@email nvarchar(40), @password nvarchar(40), @provinceName nvarchar(40), @year nvarchar(5), @amount int)
 as
 begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	insert into ProvinceBudget values(@amount, @amount, @year, @provinceId)
-	return(1)
-	end
-else
-	begin
-	return(-1)
+	insert into ProvinceBudget values(@amount, @year, (select top(1) id from Province where pname=@provinceName))
+	select 1 as Result
 	end
 end
 
