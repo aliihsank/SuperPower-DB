@@ -211,7 +211,25 @@ end
 
 GO
 
-/*ABOURT MISSION OF CORP*/
+
+/*ARMY CORPS MISSION DETAILS*/
+Create proc armyCorpMissionDetails(@email nvarchar(40), @password nvarchar(40))
+as
+begin
+SET NOCOUNT ON;
+if exists (select * from users where email=@email and pass=@password)
+	begin	
+	select * from Country C
+	inner join Army A on C.id=A.countryID
+	inner join ArmyCorps Ac on A.id=Ac.armyID
+	inner join ArmyCorpsMissions Acm on Ac.id = Acm.corpId
+	end
+end
+
+
+GO
+
+/*ABORT MISSION OF CORP*/
 Create proc abortMissionOfCorp(@email nvarchar(40), @password nvarchar(40), @corpId int, @missionId int)
 as
 begin
