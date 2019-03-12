@@ -408,17 +408,16 @@ GO
 
 /*SEALED*/
 /*MAKE LAW*/
-Create proc makeLaw(@email nvarchar(40), @password nvarchar(40), @lawTitle nvarchar(40), @startDate DateTime)
+Create proc makeLaw(@email nvarchar(40), @password nvarchar(40), @cName nvarchar(40), @lawTitle nvarchar(40), @startDate DateTime)
 as
 begin
 SET NOCOUNT ON;
 if exists (select * from users where email=@email and pass=@password)
 	begin
-	insert into CountryLaws values((select top (1) id from Country C where C.userID in (select top(1) id from Users U where U.email=@email and U.pass=@password)), (select top(1) id from Laws where title=@lawTitle), current_timestamp, @startDate)
+	insert into CountryLaws values((select top (1) id from Country C where C.cname=@cName), (select top(1) id from Laws where title=@lawTitle), current_timestamp, @startDate)
 	select 1 as Result
 	end
 end
-
 
 GO
 
@@ -518,4 +517,3 @@ select * from ArmyCorps
 select * from ArmyCorpsMissions
 select * from CountryLaws
 select * from ProvinceBudget
-
