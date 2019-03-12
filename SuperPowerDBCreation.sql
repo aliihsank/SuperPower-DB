@@ -4,20 +4,15 @@ GO
 
 /*Table Creation*/
 
-CREATE TABLE Users
+CREATE TABLE Country
 (
 id int identity	primary key,
 uname nvarchar(30) not null,
 pass nvarchar(30) not null,
 email nvarchar(30) not null,
-)
-
-CREATE TABLE Country
-(
-id int identity primary key,
 cname nvarchar(40) not null,
 remaining int not null,
-userID int references Users(id) not null
+color nvarchar(10) not null
 )
 
 CREATE TABLE Province
@@ -27,6 +22,7 @@ pname nvarchar(40) not null,
 governorName nvarchar(40), /*Might be null*/
 population int not null,
 taxRate int not null default 10,
+budget int not null,
 countryID int references Country(id) not null
 )
 
@@ -104,36 +100,25 @@ amount int not null,
 primary key(countryID, productID)
 )
 
-CREATE TABLE ProvinceBudget
-(
-id int identity primary key,
-amount int not null,
-year nvarchar(5),
-provinceID int references Province(id) not null
-)
-
-CREATE TABLE Army
-(
-id int identity primary key,
-budget int not null,
-countryID int references Country(id) not null
-)
-
 CREATE TABLE ArmyCorps
 (
 id int identity primary key,
 corpType nvarchar(40) not null,
-numOfSoldiers int not null,
-armyID int references Army(id) not null,
-provinceID int references Province(id) not null
+numOfUnits int not null,
+countryID int references Country(id) not null,
+provinceID int references Province(id) not null,
+targetProvinceID int references Province(id), /*might be null*/
+mission nvarchar(40) not null,
+startTime DateTime not null,
+duration int not null
 )
 
 CREATE TABLE Battle
 (
-army1ID int references Army(id) not null,
-army2ID int references Army(id) not null,
-result nvarchar(40) not null,
-primary key(army1ID, army2ID)
+id int identity primary key,
+c1ID int references Country(id) not null,
+c2ID int references Country(id) not null,
+result nvarchar(40) not null
 )
 
 CREATE TABLE Regulations
@@ -168,15 +153,6 @@ endDate DateTime not null
 primary key(cId,lId)
 )
 
-CREATE TABLE ArmyCorpsMissions
-(
-id int identity primary key,
-corpId int references ArmyCorps(id) not null,
-provinceId int references Province(id) not null,
-mission nvarchar(40) not null,
-startTime DateTime not null,
-duration int not null
-)
 
 CREATE TABLE AggrementOffers
 (
@@ -190,91 +166,89 @@ primary key(c1Id,c2Id,aggrementId)
 
 /*Default data*/
 
-insert into dbo.Users values('userx','passx','x@hotmail.com')
+insert into dbo.Country values('userx','passx','x@hotmail.com', 'Free Lands', 10000, 'FF6347')
 
-insert into dbo.Country values('Free Lands', 0, 1)
-
-insert into dbo.Province values('adana','NULL',2200000, 10, 1)
-insert into dbo.Province values('adıyaman','NULL',615000, 10, 1)
-insert into dbo.Province values('afyon','NULL', 715000, 10, 1)
-insert into dbo.Province values('ağrı','NULL', 536000, 10, 1)
-insert into dbo.Province values('amasya','NULL', 329000, 10, 1)
-insert into dbo.Province values('ankara','NULL', 5400000, 10, 1)
-insert into dbo.Province values('antalya','NULL', 2300000, 10, 1)
-insert into dbo.Province values('artvin','NULL', 166000, 10, 1)
-insert into dbo.Province values('aydın','NULL', 1000000, 10, 1)
-insert into dbo.Province values('balıkesir','NULL', 1200000, 10, 1)
-insert into dbo.Province values('bilecik','NULL', 221000, 10, 1)
-insert into dbo.Province values('bingöl','NULL', 273000, 10, 1)
-insert into dbo.Province values('bitlis','NULL', 341000, 10, 1)
-insert into dbo.Province values('bolu','NULL', 303000, 10, 1)
-insert into dbo.Province values('burdur','NULL', 264000, 10, 1)
-insert into dbo.Province values('bursa','NULL', 2900000, 10, 1)
-insert into dbo.Province values('çanakkale','NULL', 530000, 10, 1)
-insert into dbo.Province values('çankırı','NULL', 186000, 10, 1)
-insert into dbo.Province values('çorum','NULL', 528000, 10, 1)
-insert into dbo.Province values('denizli','NULL', 1000000, 10, 1)
-insert into dbo.Province values('diyarbakır','NULL', 1700000, 10, 1)
-insert into dbo.Province values('edirne','NULL', 406000, 10, 1)
-insert into dbo.Province values('elazığ','NULL', 583000, 10, 1)
-insert into dbo.Province values('erzincan','NULL', 231000, 10, 1)
-insert into dbo.Province values('erzurum','NULL', 760000, 10, 1)
-insert into dbo.Province values('eskişehir','NULL', 860000, 10, 1)
-insert into dbo.Province values('gaziantep','NULL', 2000000, 10, 1)
-insert into dbo.Province values('giresun','NULL', 437000, 10, 1)
-insert into dbo.Province values('gümüşhane','NULL', 170000, 10, 1)
-insert into dbo.Province values('hakkari','NULL', 275000, 10, 1)
-insert into dbo.Province values('hatay','NULL', 1500000, 10, 1)
-insert into dbo.Province values('ısparta','NULL', 433000, 10, 1)
-insert into dbo.Province values('mersin','NULL', 1700000, 10, 1)
-insert into dbo.Province values('istanbul','NULL', 15000000, 10, 1)
-insert into dbo.Province values('izmir','NULL', 4200000, 10, 1)
-insert into dbo.Province values('kars','NULL', 287000, 10, 1)
-insert into dbo.Province values('kastamonu','NULL', 373000, 10, 1)
-insert into dbo.Province values('kayseri','NULL', 1300000, 10, 1)
-insert into dbo.Province values('kırklareli','NULL', 356000, 10, 1)
-insert into dbo.Province values('kırşehir','NULL', 234000, 10, 1)
-insert into dbo.Province values('kocaeli','NULL', 1800000, 10, 1)
-insert into dbo.Province values('konya','NULL', 2100000, 10, 1)
-insert into dbo.Province values('kütahya','NULL', 572000, 10, 1)
-insert into dbo.Province values('malatya','NULL', 786000, 10, 1)
-insert into dbo.Province values('manisa','NULL', 1400000, 10, 1)
-insert into dbo.Province values('kahramanmaraş','NULL', 1100000, 10, 1)
-insert into dbo.Province values('mardin','NULL', 809000, 10, 1)
-insert into dbo.Province values('muğla','NULL', 938000, 10, 1)
-insert into dbo.Province values('muş','NULL', 404000, 10, 1)
-insert into dbo.Province values('nevşehir','NULL', 292000, 10, 1)
-insert into dbo.Province values('niğde','NULL', 352000, 10, 1)
-insert into dbo.Province values('ordu','NULL', 742000, 10, 1)
-insert into dbo.Province values('rize','NULL', 331000, 10, 1)
-insert into dbo.Province values('sakarya','NULL', 990000, 10, 1)
-insert into dbo.Province values('samsun','NULL', 1300000, 10, 1)
-insert into dbo.Province values('siirt','NULL', 324000, 10, 1)
-insert into dbo.Province values('sinop','NULL', 207000, 10, 1)
-insert into dbo.Province values('sivas','NULL', 621000, 10, 1)
-insert into dbo.Province values('tekirdağ','NULL', 1000000, 10, 1)
-insert into dbo.Province values('tokat','NULL', 602000, 10, 1)
-insert into dbo.Province values('trabzon','NULL', 786000, 10, 1)
-insert into dbo.Province values('tunceli','NULL', 82000, 10, 1)
-insert into dbo.Province values('şanlıurfa','NULL', 1900000, 10, 1)
-insert into dbo.Province values('uşak','NULL', 364000, 10, 1)
-insert into dbo.Province values('van','NULL', 1100000, 10, 1)
-insert into dbo.Province values('yozgat','NULL', 418000, 10, 1)
-insert into dbo.Province values('zonguldak','NULL', 596000, 10, 1)
-insert into dbo.Province values('aksaray','NULL', 402000, 10, 1)
-insert into dbo.Province values('bayburt','NULL', 80000, 10, 1)
-insert into dbo.Province values('karaman','NULL', 246000, 10, 1)
-insert into dbo.Province values('kırıkkale','NULL', 278000, 10, 1)
-insert into dbo.Province values('batman','NULL', 585000, 10, 1)
-insert into dbo.Province values('şırnak','NULL', 503000, 10, 1)
-insert into dbo.Province values('bartın','NULL', 193000, 10, 1)
-insert into dbo.Province values('ardahan','NULL', 97000, 10, 1)
-insert into dbo.Province values('ığdır','NULL', 194000, 10, 1)
-insert into dbo.Province values('yalova','NULL', 251000, 10, 1)
-insert into dbo.Province values('karabük','NULL', 244000, 10, 1)
-insert into dbo.Province values('kilis','NULL', 136000, 10, 1)
-insert into dbo.Province values('osmaniye','NULL', 527000, 10, 1)
-insert into dbo.Province values('düzce','NULL', 377000, 10, 1)
+insert into dbo.Province values('adana','NULL',2200000, 10, 0, 1)
+insert into dbo.Province values('adıyaman','NULL',615000, 10, 0, 1)
+insert into dbo.Province values('afyon','NULL', 715000, 10, 0, 1)
+insert into dbo.Province values('ağrı','NULL', 536000, 10, 0, 1)
+insert into dbo.Province values('amasya','NULL', 329000, 10, 0, 1)
+insert into dbo.Province values('ankara','NULL', 5400000, 10, 0, 1)
+insert into dbo.Province values('antalya','NULL', 2300000, 10, 0, 1)
+insert into dbo.Province values('artvin','NULL', 166000, 10, 0, 1)
+insert into dbo.Province values('aydın','NULL', 1000000, 10, 0, 1)
+insert into dbo.Province values('balıkesir','NULL', 1200000, 10, 0, 1)
+insert into dbo.Province values('bilecik','NULL', 221000, 10, 0, 1)
+insert into dbo.Province values('bingöl','NULL', 273000, 10, 0, 1)
+insert into dbo.Province values('bitlis','NULL', 341000, 10, 0, 1)
+insert into dbo.Province values('bolu','NULL', 303000, 10, 0, 1)
+insert into dbo.Province values('burdur','NULL', 264000, 10, 0, 1)
+insert into dbo.Province values('bursa','NULL', 2900000, 10, 0, 1)
+insert into dbo.Province values('çanakkale','NULL', 530000, 10, 0, 1)
+insert into dbo.Province values('çankırı','NULL', 186000, 10, 0, 1)
+insert into dbo.Province values('çorum','NULL', 528000, 10, 0, 1)
+insert into dbo.Province values('denizli','NULL', 1000000, 10, 0, 1)
+insert into dbo.Province values('diyarbakır','NULL', 1700000, 10, 0, 1)
+insert into dbo.Province values('edirne','NULL', 406000, 10, 0, 1)
+insert into dbo.Province values('elazığ','NULL', 583000, 10, 0, 1)
+insert into dbo.Province values('erzincan','NULL', 231000, 10, 0, 1)
+insert into dbo.Province values('erzurum','NULL', 760000, 10, 0, 1)
+insert into dbo.Province values('eskişehir','NULL', 860000, 10, 0, 1)
+insert into dbo.Province values('gaziantep','NULL', 2000000, 10, 0, 1)
+insert into dbo.Province values('giresun','NULL', 437000, 10, 0, 1)
+insert into dbo.Province values('gümüşhane','NULL', 170000, 10, 0, 1)
+insert into dbo.Province values('hakkari','NULL', 275000, 10, 0, 1)
+insert into dbo.Province values('hatay','NULL', 1500000, 10, 0, 1)
+insert into dbo.Province values('ısparta','NULL', 433000, 10, 0, 1)
+insert into dbo.Province values('mersin','NULL', 1700000, 10, 0, 1)
+insert into dbo.Province values('istanbul','NULL', 15000000, 10, 0, 1)
+insert into dbo.Province values('izmir','NULL', 4200000, 10, 0, 1)
+insert into dbo.Province values('kars','NULL', 287000, 10, 0, 1)
+insert into dbo.Province values('kastamonu','NULL', 373000, 10, 0, 1)
+insert into dbo.Province values('kayseri','NULL', 1300000, 10, 0, 1)
+insert into dbo.Province values('kırklareli','NULL', 356000, 10, 0, 1)
+insert into dbo.Province values('kırşehir','NULL', 234000, 10, 0, 1)
+insert into dbo.Province values('kocaeli','NULL', 1800000, 10, 0, 1)
+insert into dbo.Province values('konya','NULL', 2100000, 10, 0, 1)
+insert into dbo.Province values('kütahya','NULL', 572000, 10, 0, 1)
+insert into dbo.Province values('malatya','NULL', 786000, 10, 0, 1)
+insert into dbo.Province values('manisa','NULL', 1400000, 10, 0, 1)
+insert into dbo.Province values('kahramanmaraş','NULL', 1100000, 10, 0, 1)
+insert into dbo.Province values('mardin','NULL', 809000, 10, 0, 1)
+insert into dbo.Province values('muğla','NULL', 938000, 10, 0, 1)
+insert into dbo.Province values('muş','NULL', 404000, 10, 0, 1)
+insert into dbo.Province values('nevşehir','NULL', 292000, 10, 0, 1)
+insert into dbo.Province values('niğde','NULL', 352000, 10, 0, 1)
+insert into dbo.Province values('ordu','NULL', 742000, 10, 0, 1)
+insert into dbo.Province values('rize','NULL', 331000, 10, 0, 1)
+insert into dbo.Province values('sakarya','NULL', 990000, 10, 0, 1)
+insert into dbo.Province values('samsun','NULL', 1300000, 10, 0, 1)
+insert into dbo.Province values('siirt','NULL', 324000, 10, 0, 1)
+insert into dbo.Province values('sinop','NULL', 207000, 10, 0, 1)
+insert into dbo.Province values('sivas','NULL', 621000, 10, 0, 1)
+insert into dbo.Province values('tekirdağ','NULL', 1000000, 10, 0, 1)
+insert into dbo.Province values('tokat','NULL', 602000, 10, 0, 1)
+insert into dbo.Province values('trabzon','NULL', 786000, 10, 0, 1)
+insert into dbo.Province values('tunceli','NULL', 82000, 10, 0, 1)
+insert into dbo.Province values('şanlıurfa','NULL', 1900000, 10, 0, 1)
+insert into dbo.Province values('uşak','NULL', 364000, 10, 0, 1)
+insert into dbo.Province values('van','NULL', 1100000, 10, 0, 1)
+insert into dbo.Province values('yozgat','NULL', 418000, 10, 0, 1)
+insert into dbo.Province values('zonguldak','NULL', 596000, 10, 0, 1)
+insert into dbo.Province values('aksaray','NULL', 402000, 10, 0, 1)
+insert into dbo.Province values('bayburt','NULL', 80000, 10, 0, 1)
+insert into dbo.Province values('karaman','NULL', 246000, 10, 0, 1)
+insert into dbo.Province values('kırıkkale','NULL', 278000, 10, 0, 1)
+insert into dbo.Province values('batman','NULL', 585000, 10, 0, 1)
+insert into dbo.Province values('şırnak','NULL', 503000, 10, 0, 1)
+insert into dbo.Province values('bartın','NULL', 193000, 10, 0, 1)
+insert into dbo.Province values('ardahan','NULL', 97000, 10, 0, 1)
+insert into dbo.Province values('ığdır','NULL', 194000, 10, 0, 1)
+insert into dbo.Province values('yalova','NULL', 251000, 10, 0, 1)
+insert into dbo.Province values('karabük','NULL', 244000, 10, 0, 1)
+insert into dbo.Province values('kilis','NULL', 136000, 10, 0, 1)
+insert into dbo.Province values('osmaniye','NULL', 527000, 10, 0, 1)
+insert into dbo.Province values('düzce','NULL', 377000, 10, 0, 1)
 
 insert into dbo.Aggrements values('Declare War')
 insert into dbo.Aggrements values('Cease-fire Aggrement')
