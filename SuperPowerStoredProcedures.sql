@@ -406,6 +406,7 @@ end
 
 GO
 
+/*SEALED*/
 /*MAKE LAW*/
 Create proc makeLaw(@email nvarchar(40), @password nvarchar(40), @lawTitle nvarchar(40), @startDate DateTime)
 as
@@ -438,6 +439,7 @@ end
 
 GO
 
+/*SEALED*/
 /*SET BUDGET FOR PROVINCE*/
 Create proc setBudgetForProvince(@email nvarchar(40), @password nvarchar(40), @provinceName nvarchar(40), @year nvarchar(5), @amount int)
 as
@@ -503,3 +505,17 @@ else
 	return(-1)
 	end
 end
+
+
+
+GO
+
+/*Info About Current Data*/
+select * from Users
+select * from Country
+select * from AggrementOffers
+select * from ArmyCorps
+select * from ArmyCorpsMissions
+select * from CountryLaws
+select * from ProvinceBudget
+
