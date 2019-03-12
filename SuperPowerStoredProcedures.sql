@@ -226,7 +226,6 @@ if exists (select * from users where email=@email and pass=@password)
 	end
 end
 
-
 GO
 
 /*ABORT MISSION OF CORP*/
