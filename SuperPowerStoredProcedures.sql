@@ -55,9 +55,10 @@ GO
 Create proc returnResourceValues
 as
 begin
-select R.provinceID as ProvinceID, R.resourceID as ResourceID, R.amount as Amount, N.type as Type
+select P.countryID as CountryID, R.provinceID as ProvinceID, R.resourceID as ResourceID, R.amount as Amount, N.type as Type
 from dbo.ProvinceResources R
 inner join NaturalResources N on R.resourceID = N.id
+inner join Province P on R.provinceID=P.id
 end
 
 GO
@@ -242,7 +243,7 @@ GO
 
 /*SEALED*/
 /*OFFER AGGREMENT*/
-Create proc offerAggrement(@email nvarchar(40), @password nvarchar(40), @c1ID nvarchar(40), @c2ID nvarchar(40), @aggrementID nvarchar(40), @endDate DateTime)
+Create proc offerAggrement(@email nvarchar(40), @password nvarchar(40), @c1ID nvarchar(40), @c2ID nvarchar(40), @aggrementID int, @endDate DateTime)
 as
 begin
 SET NOCOUNT ON;
