@@ -55,10 +55,9 @@ GO
 Create proc returnResourceValues
 as
 begin
-select P.countryID as CountryID, P.population as Population, P.id as ProvinceID, R.resourceID as ResourceID, R.amount as Amount, N.type as Type
+select R.provinceID as ProvinceID, R.resourceID as ResourceID, R.amount as Amount, N.type as Type
 from dbo.ProvinceResources R
 inner join NaturalResources N on R.resourceID = N.id
-inner join Province P on R.provinceID=P.id
 end
 
 GO
@@ -69,26 +68,24 @@ Create proc userLogin (@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
-select id as ID from dbo.Users where email=@email and pass=@password;
+select id as ID from dbo.Country where email=@email and pass=@password;
 end
 
 GO
 
 /* SEALED */
 /*USER REGISTER*/
-Create proc userRegister (@uname nvarchar(40), @cname nvarchar(40), @email nvarchar(40), @password nvarchar(40))
+Create proc userRegister (@uname nvarchar(40), @cname nvarchar(40), @email nvarchar(40), @password nvarchar(40), @color nvarchar(8))
 as
 begin
 SET NOCOUNT ON;
-if not exists (select * from dbo.users where email=@email)
+if not exists (select * from dbo.Country where email=@email)
 	begin
-	if not exists (select * from dbo.country where cname=@cname)
+	if not exists (select * from dbo.Country where cname=@cname)
 		begin
 		Declare @uId int;
 		Declare @cId int;
-		insert into dbo.Users OUTPUT inserted.id values(@uname, @password, @email)
-		SET @uId = @@IDENTITY
-		insert into dbo.Country values(@cname, 10000, @uId)
+		insert into dbo.Country OUTPUT inserted.id values(@uname, @password, @email, @cname, 10000, @color)
 		SET @cId = @@IDENTITY
 		update TOP (1) dbo.Province set countryID=@cId where countryID=1
 		select 1 as Result
@@ -102,78 +99,47 @@ end
 
 GO
 
-
 /* SEALED */
-/*MY COUNTRY DETAILS*/
-Create proc myCountryDetails(@email nvarchar(40), @password nvarchar(40))
+/*ALL COUNTRY DETAILS*/
+Create proc countryDetails(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
-	select C.id id, C.cname cname, sum(P.population) totalpopulation, avg(P.taxRate) avgTax, count(P.id) numOfProvinces, C.remaining remaining
+	select C.id, C.uname, C.cname, C.remaining, C.color , 'y' as isMyCountry
 	from Country C 
-	inner join Province P on C.id = P.countryID
-	where C.userID in (select id from Users where email=@email and pass=@password)
-	group by C.id, C.cname, C.remaining
-	end
-end
+	where email=@email and pass=@password
 
-GO
-								     
-/* SEALED */
-/*OTHER COUNTRIES DETAILS*/
-Create proc otherCountriesDetails(@email nvarchar(40), @password nvarchar(40))
-as
-begin
-SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
-	begin
-	select C.id id, C.cname cname, sum(P.population) totalpopulation, 0 as avgTax, count(P.id) numOfProvinces, 0 as remaining
+	union
+
+	select C.id, 'NULL' as uname, C.cname, 0 as remaining, C.color, 'n' as isMyCountry
 	from Country C
-	inner join Province P on C.id = P.countryID
-	where C.userID not in (select id from Users where email=@email and pass=@password)
-	group by C.id, C.cname, C.remaining
+	where not (email=@email and pass=@password)
 	end
 end
-
 
 GO
 									  
 /* SEALED */
-/*MY PROVINCES DETAILS*/
-Create proc myProvincesDetails(@email nvarchar(40), @password nvarchar(40))
+/*ALL PROVINCES DETAILS*/
+Create proc provincesDetails(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
-	SELECT  P.id as id, P.pname as pname, P.governorName as governorName, P.population as population, P.taxRate as taxRate, P.countryID as countryID
-	FROM dbo.Country C
-	inner join Province P on C.id = P.countryID
-	where C.userID in (select id from Users where email=@email and pass=@password)
-	GROUP BY P.id, P.pname, P.governorName, P.population, P.taxRate, P.countryID
+	SELECT  P.id, P.pname, P.governorName, P.population, P.taxRate, P.budget, P.countryID
+	FROM dbo.Province P
+	where P.countryID in (select id from Country where email=@email and pass=@password)
+
+	union
+	
+	SELECT  P.id, P.pname, P.governorName, P.population, 0 as taxRate, 0 as budget, P.countryID
+	FROM dbo.Province P
+	where P.countryID not in (select id from Country where email=@email and pass=@password)
 	end
 end
-
-GO
-								       
-/* SEALED */
-/*OTHER PROVINCES DETAILS*/
-Create proc otherProvincesDetails(@email nvarchar(40), @password nvarchar(40))
-as
-begin
-SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
-	begin
-	SELECT  P.id as id, P.pname as pname, P.governorName as governorName, P.population as population, 0 as taxRate, P.countryID
-	FROM dbo.Country C
-	inner join Province P on C.id = P.countryID
-	where C.userID not in (select id from Users where email=@email and pass=@password)
-	GROUP BY P.id, P.pname, P.governorName, P.population, P.taxRate, P.countryID
-	end
-end
-
 
 GO
 
@@ -183,46 +149,32 @@ Create proc armyInformations(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
-	SELECT C.corpType, C.numOfSoldiers, M.mission, P.pname
-	FROM ArmyCorps C
-	full outer join ArmyCorpsMissions M on C.id = M.corpId
-	inner join Province P on C.provinceID=P.id
-	where C.armyID in (select A.id from Army A where A.countryID in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.email=@email and Us.pass=@password))
+	SELECT A.id, A.corpType, A.numOfUnits, A.countryID, A.provinceID, A.targetProvinceID, A.mission, A.startTime, A.duration
+	FROM ArmyCorps A
+	where A.countryID in (select id from Country C where email=@email and pass=@password)
+
+	union
+	
+	SELECT A.id, A.corpType, 0 as numOfUnits, A.countryID, A.provinceID, A.targetProvinceID, A.mission, A.startTime, A.duration
+	FROM ArmyCorps A
+	where A.countryID not in (select id from Country C where email=@email and pass=@password)
 	end
 end
-
 
 GO
 
 /*SEALED*/
 /*GIVE MISSION TO CORPS*/
-Create proc giveMissionToCorps(@email nvarchar(40), @password nvarchar(40), @corpType nvarchar(40), @targetProvinceName nvarchar(40), @mission nvarchar(40))
+Create proc giveMissionToCorps(@email nvarchar(40), @password nvarchar(40), @corpID int, @targetProvinceID int, @mission nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin	
-	insert into ArmyCorpsMissions values((select top(1) id from ArmyCorps C where C.corpType=@corpType), (select top(1) id from Province P where P.pname=@targetProvinceName) , @mission, current_timestamp, 60)
+	update ArmyCorps set targetProvinceID=@targetProvinceID,  mission=@mission, startTime=current_timestamp, duration=60 where id=@corpID
 	select 1 as Result
-	end
-end
-
-GO
-
-
-/*ARMY CORPS MISSION DETAILS*/
-Create proc armyCorpMissionDetails(@email nvarchar(40), @password nvarchar(40))
-as
-begin
-SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
-	begin	
-	select * from Country C
-	inner join Army A on C.id=A.countryID
-	inner join ArmyCorps Ac on A.id=Ac.armyID
-	inner join ArmyCorpsMissions Acm on Ac.id = Acm.corpId
 	end
 end
 
@@ -233,7 +185,7 @@ Create proc abortMissionOfCorp(@email nvarchar(40), @password nvarchar(40), @cor
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	if exists (select * from ArmyCorpsMissions where corpId=@corpId and id=@missionId and mission!='return')
 		begin
@@ -259,12 +211,12 @@ Create proc aggrementsInformations(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	select (select Top(1) cname from Country where id=C.c1id) as cname1, (select Top(1) cname from Country where id=C.c2id) as cname2, A.aggrementType, C.endDate 
 	from CountryAggrements C
 	inner join Aggrements A on C.aggrementId=A.id
-	where c1id in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.email=@email and Us.pass=@password) or c2id in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.uname=@email and Us.pass=@password)
+	where c1id in (select id from Country where email=@email and pass=@password) or c2id in (select id from Country where email=@email and pass=@password)
 	end
 end
 
@@ -275,7 +227,7 @@ Create proc declineAggrement(@email nvarchar(40), @password nvarchar(40), @c1Id 
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	delete from CountryAggrements where c1id=@c1Id and c2id=@c2Id and aggrementId=@aggrementId
 	return(1)
@@ -290,13 +242,13 @@ GO
 
 /*SEALED*/
 /*OFFER AGGREMENT*/
-Create proc offerAggrement(@email nvarchar(40), @password nvarchar(40), @c1Name nvarchar(40), @c2Name nvarchar(40), @aggrementTitle nvarchar(40), @endDate DateTime)
+Create proc offerAggrement(@email nvarchar(40), @password nvarchar(40), @c1ID nvarchar(40), @c2ID nvarchar(40), @aggrementID nvarchar(40), @endDate DateTime)
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
-	insert into AggrementOffers values((select top(1) id from Country C where C.cname=@c1Name), (select top(1) id from Country C where C.cname=@c2Name), (select id from Aggrements A where A.aggrementType=@aggrementTitle), @endDate)
+	insert into AggrementOffers values(@c1ID, @c2ID, @aggrementID, @endDate)
 	select 1 as Result
 	end
 end
@@ -308,7 +260,7 @@ Create proc answerAggrementOffer(@email nvarchar(40), @password nvarchar(40), @c
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	delete from AggrementOffers where c1Id=@c1Id and c2Id=@c2Id and aggrementId=@aggrementId
 	if @answer=1
@@ -330,7 +282,7 @@ Create proc aggrementOfferInformations(@email nvarchar(40), @password nvarchar(4
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	select * from AggrementOffers where c1Id=@countryId or c2Id=@countryId
 	end
@@ -343,7 +295,7 @@ Create proc regulationsInformations(@email nvarchar(40), @password nvarchar(40),
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	select * from CountryRegulations where cId=@countryId
 	end
@@ -357,13 +309,12 @@ Create proc lawsInformations(@email nvarchar(40), @password nvarchar(40))
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	select W.title, W.content, L.startDate, L.endDate
 	from CountryLaws L
-	inner join Country C on L.cId=C.id
 	inner join Laws W on L.lId=W.id
-	where L.cId in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.email=@email and Us.pass=@password)
+	where L.cId in (select id from Country C where email=@email and pass=@password)
 	end
 end
 
@@ -374,7 +325,7 @@ Create proc declineRegulation(@email nvarchar(40), @password nvarchar(40), @coun
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	delete from CountryRegulations where cId=@countryId and rId=@regulationId
 	return(1)
@@ -392,7 +343,7 @@ Create proc declineLaw(@email nvarchar(40), @password nvarchar(40), @countryId i
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	delete from CountryLaws where cId=@countryId and lId=@lawId
 	return(1)
@@ -410,7 +361,7 @@ Create proc makeRegulation(@email nvarchar(40), @password nvarchar(40), @country
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	insert into CountryRegulations values(@countryId, @regulationId, current_timestamp, @endDate)
 	return(1)
@@ -425,13 +376,13 @@ GO
 
 /*SEALED*/
 /*MAKE LAW*/
-Create proc makeLaw(@email nvarchar(40), @password nvarchar(40), @cName nvarchar(40), @lawTitle nvarchar(40), @startDate DateTime)
+Create proc makeLaw(@email nvarchar(40), @password nvarchar(40), @cID int, @lawID int, @startDate DateTime)
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
-	insert into CountryLaws values((select top (1) id from Country C where C.cname=@cName), (select top(1) id from Laws where title=@lawTitle), current_timestamp, @startDate)
+	insert into CountryLaws values(@cID, @lawID, current_timestamp, @startDate)
 	select 1 as Result
 	end
 end
@@ -439,31 +390,14 @@ end
 GO
 
 /*SEALED*/
-/*BUDGET INFORMATIONS*/
-Create proc budgetInformations(@email nvarchar(40), @password nvarchar(40))
-as
-begin
-SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
-	begin
-	select P.pname, B.amount, B.year from Province P
-	inner join ProvinceBudget B
-	on P.id=B.provinceId
-	where P.countryId in (select Co.id from Country Co inner join Users Us on Co.userID=Us.id where Us.email=@email and Us.pass=@password)
-	end
-end
-
-GO
-
-/*SEALED*/
 /*SET BUDGET FOR PROVINCE*/
-Create proc setBudgetForProvince(@email nvarchar(40), @password nvarchar(40), @provinceName nvarchar(40), @year nvarchar(5), @amount int)
+Create proc setBudgetForProvince(@email nvarchar(40), @password nvarchar(40), @provinceID nvarchar(40), @amount int)
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
-	insert into ProvinceBudget values(@amount, @year, (select top(1) id from Province where pname=@provinceName))
+	update Province set budget=@amount where id=@provinceID
 	select 1 as Result
 	end
 end
@@ -475,7 +409,7 @@ Create proc setBudgetForArmy(@email nvarchar(40), @password nvarchar(40), @amoun
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	update Army set budget=@amount where countryID=@countryId
 	return(1)
@@ -493,7 +427,7 @@ Create proc setTaxRateForProvince(@email nvarchar(40), @password nvarchar(40), @
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	update Province set taxRate=@taxRate where id=@provinceId
 	return(1)
@@ -511,7 +445,7 @@ Create proc makeInvestment(@email nvarchar(40), @password nvarchar(40), @provinc
 as
 begin
 SET NOCOUNT ON;
-if exists (select * from users where email=@email and pass=@password)
+if exists (select * from dbo.Country where email=@email and pass=@password)
 	begin
 	insert into ProvinceInvestments values(@provinceId, @investmentId, @degree)
 	return(1)
@@ -527,10 +461,9 @@ end
 GO
 
 /*Info About Current Data*/
-select * from Users
 select * from Country
+select * from Province
 select * from AggrementOffers
 select * from ArmyCorps
 select * from ArmyCorpsMissions
 select * from CountryLaws
-select * from ProvinceBudget
