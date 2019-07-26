@@ -1,4 +1,4 @@
-use superpower
+use sp_db
 
 GO
 
@@ -73,7 +73,8 @@ CREATE TABLE ProvinceResources
 (
 provinceID int references Province(id) not null,
 resourceID int references NaturalResources(id) not null,
-amount int not null,
+dailyProduction int not null,
+remaing int not null,
 primary key(provinceID, resourceID)
 )
 
@@ -81,6 +82,7 @@ CREATE TABLE ProvinceProducts
 (
 provinceID int references Province(id) not null,
 productID int references Products(id) not null,
+/*Burada üretim yada depolama kapasitesi belirtmeye gerek yok.Bu değerler il nüsufu ve Investment degree'lerine göre belirlenir.*/
 primary key(provinceID, productID)
 )
 
@@ -91,15 +93,7 @@ investmentID int references Investments(id) not null,
 degree int not null,
 primary key(provinceID, investmentID)
 )
-
-CREATE TABLE ProductInventory
-(
-countryID int references Country(id) not null,
-productID int references Products(id) not null,
-amount int not null,
-primary key(countryID, productID)
-)
-
+ 
 CREATE TABLE ArmyCorps
 (
 id int identity primary key,
@@ -149,7 +143,7 @@ CREATE TABLE CountryLaws
 cId int references Country(id) not null,
 lId int references Laws(id) not null,
 startDate DateTime not null,
-endDate DateTime not null
+/*endDate kaldırıldı*/
 primary key(cId,lId)
 )
 
@@ -278,7 +272,7 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceResources values(@cnt,1,99999)
+	insert into dbo.ProvinceResources values(@cnt,1,99999,99999)
 	SET @cnt = @cnt + 1;
 END;
 
@@ -288,7 +282,7 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceResources values(@cnt,2,9999)
+	insert into dbo.ProvinceResources values(@cnt,2,9999,99999)
 	SET @cnt = @cnt + 1;
 END;
 
@@ -299,7 +293,7 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceResources values(@cnt,3,999)
+	insert into dbo.ProvinceResources values(@cnt,3,999,999)
 	SET @cnt = @cnt + 1;
 END;
 
@@ -310,7 +304,7 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceResources values(@cnt,4,99)
+	insert into dbo.ProvinceResources values(@cnt,4,99,99)
 	SET @cnt = @cnt + 1;
 END;
 
