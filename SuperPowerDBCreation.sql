@@ -42,6 +42,7 @@ aggrementType nvarchar(50) not null,
 
 CREATE TABLE CountryAggrements
 (
+id int identity primary key,
 c1id int references Country(id) not null,
 c2id int references Country(id) not null,
 aggrementId int references Aggrements(id) not null,
