@@ -2,6 +2,75 @@
 
 use superpower
 
+GO
+
+
+/*
+Create proc register (@uname nvarchar(40), @password nvarchar(40), @email nvarchar(40), @cname nvarchar(40), @remaining int, @color nvarchar(8))
+as
+begin
+SET NOCOUNT ON;
+if not exists (select * from dbo.Country where email=@email)
+	begin
+	if not exists (select * from dbo.Country where cname=@cname)
+		begin
+		Declare @uId int;
+		Declare @cId int;
+		insert into dbo.Country OUTPUT inserted.id values(@uname, @password, @email, @cname, 10000, @color)
+		SET @cId = @@IDENTITY
+		update TOP (1) dbo.Province set countryID=@cId where countryID=1
+		select @cId as Result
+		end
+	else
+		select 0 as Result
+	end
+else
+	select -1 as Result
+end
+
+GO
+
+Create proc login (@email nvarchar(40), @password nvarchar(40)) 
+as
+begin
+SET NOCOUNT ON;
+if not exists(select id as Result from dbo.Country where email=@email and pass=@password)
+	begin
+	select id as Result from dbo.Country where email=@email and pass=@password
+	end
+else
+	select -1 as Result
+end
+
+
+GO
+
+
+Create proc getAggrements(@cId int)
+as
+begin
+SET NOCOUNT ON;
+select CA.id, C1.cname, C2.cname, A.aggrementType, CA.endDate
+from CountryAggrements CA
+inner join Aggrements A on CA.aggrementId=A.id
+inner join Country C1 on CA.c1id=C.id
+inner join Country C2 on CA.c2id=C.id
+where CA.c1id=@cId or CA.c2id=@cId
+end
+
+GO
+
+Create proc getAggrement(@aggrementId int)
+as
+begin
+SET NOCOUNT ON;
+
+//TODO:Empty for now
+
+end
+*/
+
+
 GO 
 
 Create proc delProcedures
