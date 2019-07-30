@@ -46,8 +46,7 @@ id int identity primary key,
 c1id int references Country(id) not null,
 c2id int references Country(id) not null,
 aggrementId int references Aggrements(id) not null,
-endDate DateTime not null,
-primary key(c1id, c2id, aggrementId)
+endDate DateTime not null
 )
 
 CREATE TABLE NaturalResources
@@ -151,11 +150,11 @@ primary key(cId,lId)
 
 CREATE TABLE AggrementOffers
 (
+id int identity primary key,
 c1Id int references Country(id) not null,
 c2Id int references Country(id) not null,
 aggrementId int references Aggrements(id) not null,
-offerEndDate DateTime not null,
-primary key(c1Id,c2Id,aggrementId)
+offerEndDate DateTime not null
 )
 
 
