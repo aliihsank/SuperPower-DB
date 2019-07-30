@@ -42,10 +42,9 @@ else
 	select -1 as Result
 end
 
-
 GO
 
-
+/*Get all aggrements which includes user's country*/
 Create proc getAggrements(@cId int)
 as
 begin
@@ -53,20 +52,220 @@ SET NOCOUNT ON;
 select CA.id, C1.cname, C2.cname, A.aggrementType, CA.endDate
 from CountryAggrements CA
 inner join Aggrements A on CA.aggrementId=A.id
-inner join Country C1 on CA.c1id=C.id
-inner join Country C2 on CA.c2id=C.id
+inner join Country C1 on CA.c1id=C1.id
+inner join Country C2 on CA.c2id=C2.id
 where CA.c1id=@cId or CA.c2id=@cId
 end
 
 GO
 
-Create proc getAggrement(@aggrementId int)
+/*Get Aggrement with given CountryAggrement.id*/
+Create proc getAggrement(@cAggrementId int)
 as
 begin
 SET NOCOUNT ON;
+select CA.id, C1.cname, C2.cname, A.aggrementType, CA.endDate
+from CountryAggrements CA
+inner join Aggrements A on CA.aggrementId=A.id
+inner join Country C1 on CA.c1id=C1.id
+inner join Country C2 on CA.c2id=C2.id
+where CA.id=@cAggrementId
+end
 
-//TODO:Empty for now
+GO
 
+Create proc getAggrementTypes
+as
+begin
+SET NOCOUNT ON;
+select * from dbo.Aggrements
+end
+
+GO
+
+Create proc getAggrementOffers(@cId int)
+as
+begin
+SET NOCOUNT ON;
+select CA.id, C1.cname, C2.cname, A.aggrementType, CA.offerEndDate
+from AggrementOffers CA
+inner join Aggrements A on CA.aggrementId=A.id
+inner join Country C1 on CA.c1Id=C1.id
+inner join Country C2 on CA.c2Id=C2.id
+where CA.c1id=@cId or CA.c2id=@cId
+end
+
+GO
+
+Create proc getAggrementOffer(@id int)
+as
+begin
+SET NOCOUNT ON;
+select CA.id, C1.cname, C2.cname, A.aggrementType, CA.offerEndDate
+from AggrementOffers CA
+inner join Aggrements A on CA.aggrementId=A.id
+inner join Country C1 on CA.c1Id=C1.id
+inner join Country C2 on CA.c2Id=C2.id
+where CA.id=@id
+end
+
+GO
+
+Create proc offerAggrement(@myCountryId int, @otherCountryId int, @aggrementId int, @endDate datetime)
+as
+begin
+SET NOCOUNT ON;
+insert into dbo.AggrementOffers(c1Id, c2Id, aggrementId, offerEndDate) values(@myCountryId, @otherCountryId, @aggrementId, @endDate)
+end
+
+GO
+
+/*Not Tested*/
+Create proc answerAggrement(@offerId int, @answer int)
+as
+begin
+SET NOCOUNT ON;
+if @answer=1
+	begin
+	insert into CountryAggrements values (select c1Id,c2Id,aggrementId,offerEndDate from AggrementOffers AO where AO.id=@offerId)
+	end
+delete from AggrementOffers where id=@offerId
+end
+
+GO
+
+Create proc cancelAggrement(@id int)
+as
+begin
+SET NOCOUNT ON;
+delete from CountryAggrements where id=@id
+end
+
+GO
+
+Create proc getArmyCorpsWithMissions(@myCountryId int)
+as
+begin
+SET NOCOUNT ON;
+select *
+from ArmyCorps AC
+inner join Province SourceProvince on AC.provinceID=SourceProvince.id
+inner join Province TargetProvince on AC.targetProvinceID=TargetProvince.id
+where AC.countryID=@myCountryId
+end
+
+GO
+
+Create proc giveMissionToCorp(@corpId int, @mission nvarchar(40), @targetProvinceID int, @duration int)
+as
+begin
+SET NOCOUNT ON;
+update ArmyCorps set mission=@mission, targetProvinceID=@targetProvinceID, startTime=GETDATE(), duration=@duration
+end
+
+GO
+
+Create proc cancelMissionOfCorp(@corpId int)
+as
+begin
+SET NOCOUNT ON;
+update ArmyCorps set mission='',targetProvinceID=0
+end
+
+GO
+
+Create proc getLaws(@cId int)
+as
+begin
+SET NOCOUNT ON;
+select CL.cId, CL.lId, CL.startDate, L.title, L.content
+from CountryLaws CL
+inner join Laws L on CL.lId=L.id
+where CL.cId=@cId
+end
+
+GO
+
+Create proc getLaw(@cId int, @lId int)
+as
+begin
+SET NOCOUNT ON;
+select CL.cId, CL.lId, CL.startDate, L.title, L.content
+from CountryLaws CL
+inner join Laws L on CL.lId=L.id
+where CL.cId=@cId and CL.lId=@lId
+end
+
+GO
+
+Create proc getLawTypes
+as
+begin
+SET NOCOUNT ON;
+select * from dbo.Laws
+end
+
+GO
+
+Create proc setLaw(@cId int, @lId int)
+as
+begin
+SET NOCOUNT ON;
+insert into CountryLaws (cId, lId, startDate) values(@cId, @lId, GETDATE())
+end
+
+GO
+
+Create proc cancelLaw(@cId int, @lId int)
+as
+begin
+SET NOCOUNT ON;
+delete from CountryLaws where cId=@cId and lId=@lId
+end
+
+GO
+
+Create proc setProvincesBudgets(@countryId int, @budget int)
+as
+begin
+SET NOCOUNT ON;
+update Province set budget=@budget where countryID=@countryId
+end
+
+GO
+
+Create proc setProvinceBudget(@provinceId int, @budget int)
+as
+begin
+SET NOCOUNT ON;
+update Province set budget=@budget where id=@provinceId
+end
+
+GO
+
+Create proc getTaxRates(@countryId int)
+as
+begin
+SET NOCOUNT ON;
+select taxRate from Province where countryID=@countryId
+end
+
+GO
+
+Create proc getTaxRate(@provinceId int)
+as
+begin
+SET NOCOUNT ON;
+select taxRate from Province where id=@provinceId
+end
+
+GO
+
+Create proc setTaxRate(@provinceId int, @taxRate int)
+as
+begin
+SET NOCOUNT ON;
+update Province set taxRate=@taxRate where id=@provinceId
 end
 */
 
