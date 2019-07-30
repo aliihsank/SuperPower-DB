@@ -7,10 +7,9 @@ GO
 CREATE TABLE Country
 (
 id int identity	primary key,
-uname nvarchar(30) not null,
-pass nvarchar(30) not null,
 email nvarchar(30) not null,
-cname nvarchar(40) not null,
+pass nvarchar(30) not null,
+cName nvarchar(40) not null,
 remaining int not null,
 color nvarchar(10) not null
 )
@@ -43,8 +42,8 @@ aggrementType nvarchar(50) not null,
 CREATE TABLE CountryAggrements
 (
 id int identity primary key,
-c1id int references Country(id) not null,
-c2id int references Country(id) not null,
+c1Id int references Country(id) not null,
+c2Id int references Country(id) not null,
 aggrementId int references Aggrements(id) not null,
 endDate DateTime not null
 )
@@ -52,20 +51,20 @@ endDate DateTime not null
 CREATE TABLE NaturalResources
 (
 id int identity primary key,
-nname nvarchar(40) not null,
+name nvarchar(40) not null,
 type nvarchar(40) not null
 )
 
 CREATE TABLE Products
 (
 id int identity primary key,
-pname nvarchar(40) not null
+name nvarchar(40) not null
 )
 
 CREATE TABLE Investments
 (
 id int identity primary key,
-itype nvarchar(40) not null,
+type nvarchar(40) not null,
 price int not null default 0
 )
 
@@ -73,7 +72,6 @@ CREATE TABLE ProvinceResources
 (
 provinceID int references Province(id) not null,
 resourceID int references NaturalResources(id) not null,
-dailyProduction int not null,
 remaing int not null,
 primary key(provinceID, resourceID)
 )
@@ -82,7 +80,7 @@ CREATE TABLE ProvinceProducts
 (
 provinceID int references Province(id) not null,
 productID int references Products(id) not null,
-/*Burada üretim yada depolama kapasitesi belirtmeye gerek yok.Bu değerler il nüsufu ve Investment degree'lerine göre belirlenir.*/
+remaing int not null,
 primary key(provinceID, productID)
 )
 
@@ -143,7 +141,6 @@ CREATE TABLE CountryLaws
 cId int references Country(id) not null,
 lId int references Laws(id) not null,
 startDate DateTime not null,
-/*endDate kaldırıldı*/
 primary key(cId,lId)
 )
 
@@ -160,7 +157,7 @@ offerEndDate DateTime not null
 
 /*Default data*/
 
-insert into dbo.Country values('userx','passx','x@hotmail.com', 'Free Lands', 10000, 'FF6347')
+insert into dbo.Country values('x@hotmail.com', 'passx', 'Free Lands', 10000, 'FF6347')
 
 insert into dbo.Province values('adana','NULL',2200000, 10, 0, 1)
 insert into dbo.Province values('adıyaman','NULL',615000, 10, 0, 1)
@@ -272,7 +269,7 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceResources values(@cnt,1,99999,99999)
+	insert into dbo.ProvinceResources values(@cnt,1,99999)
 	SET @cnt = @cnt + 1;
 END;
 
@@ -282,7 +279,7 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceResources values(@cnt,2,9999,99999)
+	insert into dbo.ProvinceResources values(@cnt,2,99999)
 	SET @cnt = @cnt + 1;
 END;
 
@@ -293,7 +290,7 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceResources values(@cnt,3,999,999)
+	insert into dbo.ProvinceResources values(@cnt,3,999)
 	SET @cnt = @cnt + 1;
 END;
 
@@ -304,7 +301,7 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceResources values(@cnt,4,99,99)
+	insert into dbo.ProvinceResources values(@cnt,4,99)
 	SET @cnt = @cnt + 1;
 END;
 
@@ -316,7 +313,7 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceProducts values(@cnt,1)
+	insert into dbo.ProvinceProducts values(@cnt,1,5)
 	SET @cnt = @cnt + 1;
 END;
 
@@ -327,6 +324,6 @@ GO
 DECLARE @cnt INT = 1;
 WHILE @cnt < 82
 BEGIN
-	insert into dbo.ProvinceProducts values(@cnt,2)
+	insert into dbo.ProvinceProducts values(@cnt,2,10)
 	SET @cnt = @cnt + 1;
 END;
