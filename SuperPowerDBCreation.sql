@@ -72,7 +72,7 @@ CREATE TABLE ProvinceResources
 (
 provinceID int references Province(id) not null,
 resourceID int references NaturalResources(id) not null,
-remaing int not null,
+remaining int not null,
 primary key(provinceID, resourceID)
 )
 
@@ -80,7 +80,7 @@ CREATE TABLE ProvinceProducts
 (
 provinceID int references Province(id) not null,
 productID int references Products(id) not null,
-remaing int not null,
+remaining int not null,
 primary key(provinceID, productID)
 )
 
