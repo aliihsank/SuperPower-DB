@@ -1,6 +1,5 @@
 use sp_db
 
-select name from sys.tables
 
 GO
 
@@ -267,9 +266,26 @@ end
 
 GO
 
+Create proc getMyCountry(@myCountryId int)
+as
+begin
+SET NOCOUNT ON;
+select id, cName, remaining, color from dbo.Country where countryID=@myCountryId
+end
+
+GO
+
+Create proc getMyProvinces
+as
+begin
+SET NOCOUNT ON;
+select * from Province where countryID=@myCountryId
+end
+
+GO
 
 /*Will be updated, for now, it takes only other countries*/
-Create proc getCountries(@myCountryId int)
+Create proc getOtherCountries(@myCountryId int)
 as
 begin
 SET NOCOUNT ON;
@@ -278,21 +294,11 @@ end
 
 GO
 
-Create proc getAllProvinces
+Create proc getOtherProvinces(@myCountryId int)
 as
 begin
 SET NOCOUNT ON;
-select * from Province
-end
-
-GO
-
-/*Will be updated : kaynaklar, ürünler ve yatırımları da dahil et*/
-Create proc getProvincesOf(@countryId int)
-as
-begin
-SET NOCOUNT ON;
-select * from Province where countryID=@countryId
+select * from Province where countryID!=@myCountryId
 end
 
 GO
@@ -305,6 +311,30 @@ select *
 from ArmyCorps AC
 inner join Province SourceProvince on AC.provinceID=SourceProvince.id
 inner join Province TargetProvince on AC.targetProvinceID=TargetProvince.id
+end
+
+GO
+
+Create proc getCountryResourcesOf(@countryId int)
+as
+begin
+SET NOCOUNT ON;
+select CR.countryID, CR.resourceID, NR.name, NR.type CR.remaining, CR.maxCapacity 
+from CountryResources CR
+inner join NaturalResources NR on CR.resourceID=NR.id
+where CR.countryID=@countryId
+end
+
+GO
+
+Create proc getCountryProductsOf(@countryId int)
+as
+begin
+SET NOCOUNT ON;
+select CP.countryID, CP.productID, P.name, CP.remaining, CP.maxCapacity 
+from CountryProducts CP 
+inner join Products P on CP.productID=P.id
+where CP.countryID=@countryId
 end
 
 GO
